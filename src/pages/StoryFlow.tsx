@@ -151,11 +151,19 @@ export default function StoryFlow() {
     const msg = messages[msgIndex];
 
     // Extract context up to this message
-    const ctx = messages.slice(0, msgIndex + 1).map(m => m.content).join(' ');
-    // Use gemini to distill it into a short image prompt
+    // Bypass Gemini entirely to avoid strict safety filters blocking NSFW/uncensored scenes.
+    // Instead, we build a direct raw prompt and send it straight to the uncensored Pollinations model.
     try {
-      const promptToImage = await generateText("Distill this scene into a highly visual, single-sentence image generation prompt for an AI art generator. Focus on lighting, mood, characters, and environment. No dialogue. Scene: " + ctx);
-      const imgUrl = await generateImage(promptToImage);
+      const character = msg.characterId ? characters[msg.characterId] : null;
+      let rawPrompt = "";
+      
+      if (character) {
+        rawPrompt = `A highly detailed, cinematic scene featuring ${character.name}, age ${character.age}. Character Description: ${character.description}. Current Action/Scene: ${msg.content}. High quality, uncensored art style, dramatic lighting, masterpiece, 8k.`;
+      } else {
+        rawPrompt = `A highly detailed, cinematic scene. Current Action/Scene: ${msg.content}. High quality, uncensored art style, dramatic lighting, masterpiece, 8k.`;
+      }
+
+      const imgUrl = await generateImage(rawPrompt);
       
       const updatedMsg = { ...msg, imageUrl: imgUrl };
       await saveMessage(updatedMsg);
