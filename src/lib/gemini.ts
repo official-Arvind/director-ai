@@ -26,40 +26,56 @@ const SAFETY_SETTINGS = [
 ];
 
 export async function generateText(prompt: string, model: string = 'gemini-3.5-flash', systemInstruction?: string): Promise<string> {
-  const apiKey = await getActiveApiKey();
-  const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
+  const profile = await getProfile();
+  const maxRetries = profile?.apiKeys ? Math.max(profile.apiKeys.length, 1) : 1;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const apiKey = await getActiveApiKey();
+    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
-  const payload: any = {
-    contents: [{ parts: [{ text: prompt }] }],
-    safetySettings: SAFETY_SETTINGS,
-    generationConfig: {
-      temperature: 0.9,
-    }
-  };
-
-  if (systemInstruction) {
-    payload.systemInstruction = {
-      parts: [{ text: systemInstruction }]
+    const payload: any = {
+      contents: [{ parts: [{ text: prompt }] }],
+      safetySettings: SAFETY_SETTINGS,
+      generationConfig: {
+        temperature: 0.9,
+      }
     };
-  }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+    if (systemInstruction) {
+      payload.systemInstruction = {
+        parts: [{ text: systemInstruction }]
+      };
+    }
 
-  if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(`Gemini API Error: ${response.status} - ${errorData}`);
-  }
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-  const data = await response.json();
-  if (data.candidates && data.candidates.length > 0) {
-    return data.candidates[0].content.parts[0].text;
+      if (!response.ok) {
+        if (response.status === 429 && attempt < maxRetries - 1) {
+          console.warn(`Rate limited (429). Retrying with next key...`);
+          continue; // Automatically uses the next key since getActiveApiKey rotates
+        }
+        const errorData = await response.text();
+        throw new Error(`Gemini API Error: ${response.status} - ${errorData}`);
+      }
+
+      const data = await response.json();
+      if (data.candidates && data.candidates.length > 0) {
+        return data.candidates[0].content.parts[0].text;
+      }
+      throw new Error('No content generated.');
+    } catch (e: any) {
+      if (attempt === maxRetries - 1) {
+        throw e;
+      }
+    }
   }
   
-  throw new Error('No content generated.');
+  throw new Error('All API keys failed or rate limited.');
 }
 
 // For a structured chat sequence

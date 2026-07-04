@@ -207,34 +207,40 @@ export default function StoryFlow() {
         </div>
       )}
 
-      <header className="glass-panel flex justify-between items-center" style={{ padding: '1rem 2rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
-        <div className="flex items-center gap-4">
-          <button className="glass-button" style={{ padding: '8px' }} onClick={() => isFullscreen ? setIsFullscreen(false) : navigate('/')}>
-            {isFullscreen ? <Minimize size={16} /> : <ArrowLeft size={16} />}
-          </button>
-          <div>
-            <h3 style={{ margin: 0 }}>{story.name}</h3>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--primary)' }}>
-              {story.characterIds.map(id => characters[id]?.name).filter(Boolean).join(' vs ')}
-            </p>
+      {!isFullscreen ? (
+        <header className="glass-panel flex justify-between items-center" style={{ padding: '1rem 2rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
+          <div className="flex items-center gap-4">
+            <button className="glass-button" style={{ padding: '8px' }} onClick={() => navigate('/')}>
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <h3 style={{ margin: 0 }}>{story.name}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--primary)' }}>
+                {story.characterIds.map(id => characters[id]?.name).filter(Boolean).join(' vs ')}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {!isFullscreen && (
+          <div className="flex gap-2">
             <button className="glass-button" onClick={() => setIsFullscreen(true)}>
               <Maximize size={16}/> Fullscreen
             </button>
-          )}
-          <button className={`glass-button ${isPaused ? 'primary' : ''}`} onClick={() => setIsPaused(!isPaused)}>
-            {isPaused ? <><Play size={16}/> Resume</> : <><Pause size={16}/> Pause</>}
-          </button>
-          <button className="glass-button" onClick={() => setShowExportModal(true)}>
-            <Download size={16}/> Compile
+            <button className={`glass-button ${isPaused ? 'primary' : ''}`} onClick={() => setIsPaused(!isPaused)}>
+              {isPaused ? <><Play size={16}/> Resume</> : <><Pause size={16}/> Pause</>}
+            </button>
+            <button className="glass-button" onClick={() => setShowExportModal(true)}>
+              <Download size={16}/> Compile
+            </button>
+          </div>
+        </header>
+      ) : (
+        <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 9999 }}>
+          <button className="glass-button" style={{ padding: '8px', background: 'rgba(0,0,0,0.5)', border: 'none' }} onClick={() => setIsFullscreen(false)}>
+            <Minimize size={16} /> Exit Fullscreen
           </button>
         </div>
-      </header>
+      )}
 
-      <div className="glass-panel flex-col" style={{ flex: 1, overflowY: 'auto', padding: '2rem', gap: '1.5rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
+      <div className={`flex-col ${isFullscreen ? '' : 'glass-panel'}`} style={{ flex: 1, overflowY: 'auto', padding: isFullscreen ? '4rem 2rem' : '2rem', gap: isFullscreen ? '3rem' : '1.5rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
         <AnimatePresence>
           {messages.map((m, idx) => {
             const isSystem = m.characterId === 'system';
@@ -262,38 +268,40 @@ export default function StoryFlow() {
                 }}
               >
                 <div style={{ 
-                  maxWidth: '80%', 
-                  background: isSystem ? 'transparent' : isUser ? 'rgba(69, 162, 158, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                  border: isSystem ? 'none' : '1px solid var(--glass-border)',
-                  padding: '1rem 1.5rem',
+                  maxWidth: isFullscreen ? '900px' : '80%', 
+                  background: isSystem || isFullscreen ? 'transparent' : isUser ? 'rgba(69, 162, 158, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  border: isSystem || isFullscreen ? 'none' : '1px solid var(--glass-border)',
+                  padding: isFullscreen ? '0' : '1rem 1.5rem',
                   borderRadius: '16px',
                   position: 'relative',
                   borderBottomLeftRadius: align === 'flex-start' ? 0 : '16px',
                   borderBottomRightRadius: align === 'flex-end' ? 0 : '16px',
                   color: isSystem ? 'var(--primary)' : 'inherit',
                   fontStyle: isSystem ? 'italic' : 'normal',
-                  textAlign: isSystem ? 'center' : 'left'
+                  textAlign: isSystem ? 'center' : 'left',
+                  fontSize: isFullscreen ? '1.2rem' : '1rem',
+                  lineHeight: 1.8
                 }}>
                   {!isSystem && !isUser && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--primary)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    <div style={{ fontSize: isFullscreen ? '1rem' : '0.8rem', color: 'var(--primary)', marginBottom: '0.5rem', fontWeight: 600 }}>
                       {char?.name}
                     </div>
                   )}
                   {isUser && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: '0.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ fontSize: isFullscreen ? '1rem' : '0.8rem', color: 'var(--secondary)', marginBottom: '0.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <User size={12} /> DIRECTOR INJECTION
                     </div>
                   )}
                   
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
+                  <div style={{ whiteSpace: 'pre-wrap', textShadow: isFullscreen ? '0 2px 4px rgba(0,0,0,0.8)' : 'none' }}>{m.content}</div>
                   
                   {m.imageUrl && (
-                    <div style={{ marginTop: '1rem', borderRadius: '8px', overflow: 'hidden', maxWidth: '400px', marginInline: 'auto' }}>
+                    <div style={{ marginTop: '1.5rem', borderRadius: '8px', overflow: 'hidden', maxWidth: isFullscreen ? '600px' : '400px', marginInline: isSystem ? 'auto' : (align === 'flex-start' ? '0' : align === 'flex-end' ? 'auto' : 'auto'), marginLeft: align === 'flex-end' ? 'auto' : 0 }}>
                       <img src={m.imageUrl} alt="Scene Visualization" style={{ width: '100%', height: 'auto', display: 'block', border: '1px solid var(--glass-border)' }} />
                     </div>
                   )}
                   
-                  {!isSystem && (
+                  {!isSystem && !isFullscreen && (
                     <div className="flex gap-2" style={{ marginTop: '0.8rem', justifyContent: 'flex-end' }}>
                       <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleCopy(m.content)}>
                         <Copy size={12} />
