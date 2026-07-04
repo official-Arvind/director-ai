@@ -81,6 +81,16 @@ export default function ProfilePage() {
               }} 
             />
           </div>
+          <div>
+            <label><Key size={14} style={{ display: 'inline', marginRight: '4px' }}/> Pollinations Image API Key (Optional)</label>
+            <input 
+              className="glass-input" 
+              type="password" 
+              placeholder="sk_..." 
+              value={profile.pollinationsKey || ''} 
+              onChange={e => setProfile({...profile, pollinationsKey: e.target.value})} 
+            />
+          </div>
         </div>
 
         <button className="glass-button primary mt-6" onClick={handleSave}>

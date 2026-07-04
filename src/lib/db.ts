@@ -4,6 +4,7 @@ export interface Profile {
   id: string; // usually just 'default'
   name: string;
   apiKeys: string[];
+  pollinationsKey?: string;
 }
 
 export interface Character {
