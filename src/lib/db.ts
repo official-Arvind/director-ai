@@ -21,8 +21,7 @@ export interface Story {
   characterIds: string[];
   relationshipDynamics: string;
   createdAt: number;
-  systemPromptA: string;
-  systemPromptB: string;
+  orchestratorPrompt: string;
 }
 
 export interface Message {

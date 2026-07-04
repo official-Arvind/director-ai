@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCharacters, type Character, saveStory, type Story } from '../lib/db';
-import { parseRelationshipDynamics } from '../lib/gemini';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Play } from 'lucide-react';
+import { buildOrchestratorPrompt } from '../lib/gemini';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Play, Plus, X } from 'lucide-react';
 
 export default function StoryConfig() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [name, setName] = useState('');
   const [startingPoint, setStartingPoint] = useState('');
-  const [charA, setCharA] = useState<string>('');
-  const [charB, setCharB] = useState<string>('');
+  const [selectedChars, setSelectedChars] = useState<string[]>(['', '']); // Start with 2 required
   const [dynamics, setDynamics] = useState('');
   const [isParsing, setIsParsing] = useState(false);
   
@@ -24,42 +23,44 @@ export default function StoryConfig() {
     const c = await getCharacters();
     setCharacters(c);
     if (c.length >= 2) {
-      setCharA(c[0].id);
-      setCharB(c[1].id);
+      setSelectedChars([c[0].id, c[1].id]);
     }
   };
 
+  const updateSelectedChar = (index: number, val: string) => {
+    const newArr = [...selectedChars];
+    newArr[index] = val;
+    setSelectedChars(newArr);
+  };
+
+  const removeChar = (index: number) => {
+    const newArr = [...selectedChars];
+    newArr.splice(index, 1);
+    setSelectedChars(newArr);
+  };
+
   const handleStart = async () => {
-    if (!name || !startingPoint || !charA || !charB || charA === charB || !dynamics) {
-      alert("Please fill all fields and select two different characters.");
+    const uniqueChars = new Set(selectedChars.filter(c => c !== ''));
+    if (!name || !startingPoint || !dynamics || uniqueChars.size < 2) {
+      alert("Please fill all fields and select at least two different characters.");
       return;
     }
 
     setIsParsing(true);
     try {
-      // Background NLP parsing to weave deep system prompts
-      const parsedPrompts = await parseRelationshipDynamics(dynamics);
+      const activeCharIds = Array.from(uniqueChars);
+      const activeCharObjs = activeCharIds.map(id => characters.find(c => c.id === id)!).filter(Boolean);
       
-      const charAObj = characters.find(c => c.id === charA);
-      const charBObj = characters.find(c => c.id === charB);
+      const orchestratorPrompt = await buildOrchestratorPrompt(dynamics, activeCharObjs);
       
-      const basePromptA = `You are ${charAObj?.name}, age ${charAObj?.age}. ${charAObj?.description}.
-Your current relationship dynamic: ${parsedPrompts.promptA}
-Keep responses to 2-3 sentences max. Do NOT write dialogue for the other character. Drive the story forward playfully, intensely, or dramatically based on your persona.`;
-      
-      const basePromptB = `You are ${charBObj?.name}, age ${charBObj?.age}. ${charBObj?.description}.
-Your current relationship dynamic: ${parsedPrompts.promptB}
-Keep responses to 2-3 sentences max. Do NOT write dialogue for the other character. Drive the story forward playfully, intensely, or dramatically based on your persona.`;
-
       const newStory: Story = {
         id: crypto.randomUUID(),
         name,
         startingPoint,
-        characterIds: [charA, charB],
+        characterIds: activeCharIds,
         relationshipDynamics: dynamics,
         createdAt: Date.now(),
-        systemPromptA: basePromptA,
-        systemPromptB: basePromptB,
+        orchestratorPrompt: orchestratorPrompt,
       };
 
       await saveStory(newStory);
@@ -98,31 +99,56 @@ Keep responses to 2-3 sentences max. Do NOT write dialogue for the other charact
             />
           </div>
 
-          <div className="grid-2">
-            <div>
-              <label>Character A (POV 1)</label>
-              <select className="glass-input mt-4" value={charA} onChange={e => setCharA(e.target.value)}>
-                {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <label>Cast (Min 2)</label>
+              {selectedChars.length < Math.min(4, characters.length) && (
+                <button 
+                  className="glass-button" 
+                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                  onClick={() => setSelectedChars([...selectedChars, characters[0]?.id || ''])}
+                >
+                  <Plus size={14} /> Add Character
+                </button>
+              )}
             </div>
-            <div>
-              <label>Character B (POV 2)</label>
-              <select className="glass-input mt-4" value={charB} onChange={e => setCharB(e.target.value)}>
-                {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
+            
+            <AnimatePresence>
+              {selectedChars.map((charId, idx) => (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                  key={idx} 
+                  className="flex items-center gap-2 mb-2"
+                >
+                  <select 
+                    className="glass-input" 
+                    value={charId} 
+                    onChange={e => updateSelectedChar(idx, e.target.value)}
+                  >
+                    {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  {idx >= 2 && (
+                    <button className="glass-button danger" style={{ padding: '12px' }} onClick={() => removeChar(idx)}>
+                      <X size={16} />
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
           <div>
-            <label>Relationship Dynamics</label>
+            <label>Relationship Dynamics & Story Premise</label>
             <textarea 
               className="glass-input mt-4" 
               value={dynamics} 
               onChange={e => setDynamics(e.target.value)} 
-              placeholder="e.g. Amit secretly loves Neha, but Neha is obsessed with revenge; they meet during a storm."
+              placeholder="e.g. Amit secretly loves Neha, but Neha is obsessed with revenge. Raj is the wild card..."
               style={{ minHeight: '100px', resize: 'vertical' }}
             />
-            <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>* This will be parsed by the AI to create deep psychological system prompts.</p>
+            <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>* This will be woven into the AI Orchestrator's core memory.</p>
           </div>
 
           <button 
@@ -131,7 +157,7 @@ Keep responses to 2-3 sentences max. Do NOT write dialogue for the other charact
             onClick={handleStart}
             disabled={isParsing}
           >
-            {isParsing ? 'Parsing Story Matrix...' : <><Play size={18} /> Action!</>}
+            {isParsing ? 'Assembling Cast & Initializing Memory...' : <><Play size={18} /> Action!</>}
           </button>
         </div>
       </motion.div>

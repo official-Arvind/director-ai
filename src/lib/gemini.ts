@@ -126,26 +126,29 @@ export async function generateImage(prompt: string): Promise<string> {
   return "https://via.placeholder.com/1024x1024.png?text=Image+Generation+Failed";
 }
 
-export async function parseRelationshipDynamics(dynamics: string): Promise<{promptA: string, promptB: string}> {
-  // Use gemini to parse casual text into deep system prompts
-  const instruction = `You are an expert NLP parser. The user will provide a casual description of a relationship between two characters.
-Return a JSON object with two keys: 'promptA' and 'promptB'. 
-These should be rich, deep system prompts for each character's perspective, preparing them for an interactive storytelling session.
-CRITICAL CONSTRAINT: You MUST append this exact phrase to the very end of BOTH promptA and promptB:
-"Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging."
-Output ONLY raw JSON, no markdown formatting.`;
+export async function buildOrchestratorPrompt(dynamics: string, characters: { id: string, name: string, age: number, description: string }[]): Promise<string> {
+  const charDetails = characters.map(c => `- **${c.name}** (ID: ${c.id}, Age: ${c.age}): ${c.description}`).join('\n');
+  
+  const instruction = `You are the Master Director of a multi-character storytelling engine.
+You are managing the following characters:
+${charDetails}
 
-  const responseText = await generateText(dynamics, 'gemini-3.5-flash', instruction);
-  try {
-    const parsed = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
-    return parsed;
-  } catch (e) {
-    console.error("Failed to parse JSON", responseText);
-    return {
-      promptA: `You are character A. Dynamics: ${dynamics}. Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging.`,
-      promptB: `You are character B. Dynamics: ${dynamics}. Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging.`
-    };
-  }
+The overarching dynamic of this scene is: ${dynamics}
+
+YOUR JOB:
+Read the recent message history. Based on the logical flow of the conversation, choose exactly ONE character who should react or speak next. 
+Write their response strictly from their Point of View (POV). 
+CRITICAL CONSTRAINT: The response MUST be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging. DO NOT write dialogue for other characters.
+
+You must output your response as a valid JSON object in the exact following format:
+{
+  "characterId": "<the ID of the character you chose>",
+  "content": "<their 2-3 sentence POV response>"
+}
+
+Output ONLY raw JSON. No markdown backticks, no explanations.`;
+
+  return instruction;
 }
 
 export async function polishCharacterNotes(rawNotes: string): Promise<string> {

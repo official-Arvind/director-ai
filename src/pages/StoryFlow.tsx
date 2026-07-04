@@ -15,7 +15,6 @@ export default function StoryFlow() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
   const [userInput, setUserInput] = useState('');
-  const [activeTurn, setActiveTurn] = useState<string | null>(null);
   
   const [exportStyle, setExportStyle] = useState('');
   const [isExporting, setIsExporting] = useState(false);
@@ -67,49 +66,56 @@ export default function StoryFlow() {
     } else {
       setMessages(msgs);
     }
-    
-    // Determine active turn (charA if last was system or charB, charB if last was charA)
-    const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-    if (!lastMsg || lastMsg.characterId === 'system' || lastMsg.characterId === s.characterIds[1]) {
-      setActiveTurn(s.characterIds[0]);
-    } else {
-      setActiveTurn(s.characterIds[1]);
-    }
   };
 
   const triggerNextTurn = async () => {
     if (!story || isPaused || isGenerating) return;
     
     setIsGenerating(true);
-    const currentCharId = activeTurn || story.characterIds[0];
-    const systemPrompt = currentCharId === story.characterIds[0] ? story.systemPromptA : story.systemPromptB;
     
-    // Build context string from last 10 messages
-    const contextMsgs = messages.slice(-10).map(m => {
-      if (m.characterId === 'system') return `[SCENE]: ${m.content}`;
+    // Memory Rolling Window: Only take the last 15 messages to save tokens.
+    // If the conversation is longer, the first message is kept as 'Core Premise', then we take the last 14.
+    let windowMsgs = messages;
+    if (messages.length > 15) {
+      windowMsgs = [messages[0], ...messages.slice(-14)];
+    }
+
+    const contextMsgs = windowMsgs.map(m => {
+      if (m.characterId === 'system') return `[SCENE/SYSTEM]: ${m.content}`;
       if (m.characterId === 'user') return `[DIRECTOR INJECTION]: ${m.content}`;
       const charName = characters[m.characterId]?.name || 'Unknown';
-      return `${charName}: ${m.content}`;
+      return `[${charName} (ID: ${m.characterId})]: ${m.content}`;
     }).join('\n\n');
 
-    const prompt = `Context timeline:\n${contextMsgs}\n\nIt is your turn to respond.`;
+    const prompt = `Context timeline (Chronological):\n${contextMsgs}\n\nIt is your turn to orchestrate. Output JSON with characterId and content.`;
 
     try {
-      const response = await generateText(prompt, 'gemini-3.5-flash', systemPrompt);
+      const responseText = await generateText(prompt, 'gemini-3.5-flash', story.orchestratorPrompt);
+      let parsed;
+      try {
+        parsed = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
+      } catch (parseError) {
+        console.error("Failed to parse JSON response:", responseText);
+        // Fallback if AI hallucinates formatting
+        parsed = {
+          characterId: story.characterIds[0],
+          content: responseText.replace(/[{}"_]/g, '').slice(0, 300)
+        };
+      }
       
+      // Ensure the AI chose a valid active character
+      const validCharId = characters[parsed.characterId] ? parsed.characterId : story.characterIds[0];
+
       const newMsg: Message = {
         id: crypto.randomUUID(),
         storyId: story.id,
-        characterId: currentCharId,
-        content: response,
+        characterId: validCharId,
+        content: parsed.content || "...",
         timestamp: Date.now()
       };
       
       await saveMessage(newMsg);
       setMessages(prev => [...prev, newMsg]);
-      
-      // Toggle turn
-      setActiveTurn(currentCharId === story.characterIds[0] ? story.characterIds[1] : story.characterIds[0]);
       
     } catch (e) {
       console.error(e);
@@ -190,7 +196,7 @@ export default function StoryFlow() {
           <div>
             <h3 style={{ margin: 0 }}>{story.name}</h3>
             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--primary)' }}>
-              {characters[story.characterIds[0]]?.name} vs {characters[story.characterIds[1]]?.name}
+              {story.characterIds.map(id => characters[id]?.name).filter(Boolean).join(' vs ')}
             </p>
           </div>
         </div>
@@ -211,10 +217,12 @@ export default function StoryFlow() {
             const isUser = m.characterId === 'user';
             const char = characters[m.characterId];
             
-            // Align: char A left, char B right, system/user center
+            // Align: even index left, odd index right, system/user center
             let align = 'center';
-            if (m.characterId === story.characterIds[0]) align = 'flex-start';
-            if (m.characterId === story.characterIds[1]) align = 'flex-end';
+            const charIndex = story.characterIds.indexOf(m.characterId);
+            if (charIndex !== -1) {
+              align = charIndex % 2 === 0 ? 'flex-start' : 'flex-end';
+            }
 
             return (
               <motion.div 
@@ -281,7 +289,7 @@ export default function StoryFlow() {
                <span className="dot"></span>
                <span className="dot"></span>
              </div>
-             {characters[activeTurn || '']?.name} is thinking...
+             The Engine is deciding who speaks next...
            </motion.div>
         )}
         <div ref={messagesEndRef} />
