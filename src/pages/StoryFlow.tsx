@@ -89,7 +89,7 @@ export default function StoryFlow() {
     const prompt = `Context timeline (Chronological):\n${contextMsgs}\n\nIt is your turn to orchestrate. Output JSON with characterId and content.`;
 
     try {
-      const responseText = await generateText(prompt, 'gemini-3.5-flash', story.orchestratorPrompt);
+      const responseText = await generateText(prompt, 'gemini-1.5-flash', story.orchestratorPrompt);
       let parsed;
       try {
         parsed = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
