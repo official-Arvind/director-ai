@@ -131,6 +131,8 @@ export async function parseRelationshipDynamics(dynamics: string): Promise<{prom
   const instruction = `You are an expert NLP parser. The user will provide a casual description of a relationship between two characters.
 Return a JSON object with two keys: 'promptA' and 'promptB'. 
 These should be rich, deep system prompts for each character's perspective, preparing them for an interactive storytelling session.
+CRITICAL CONSTRAINT: You MUST append this exact phrase to the very end of BOTH promptA and promptB:
+"Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging."
 Output ONLY raw JSON, no markdown formatting.`;
 
   const responseText = await generateText(dynamics, 'gemini-3.5-flash', instruction);
@@ -140,8 +142,8 @@ Output ONLY raw JSON, no markdown formatting.`;
   } catch (e) {
     console.error("Failed to parse JSON", responseText);
     return {
-      promptA: `You are character A. Dynamics: ${dynamics}`,
-      promptB: `You are character B. Dynamics: ${dynamics}`
+      promptA: `You are character A. Dynamics: ${dynamics}. Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging.`,
+      promptB: `You are character B. Dynamics: ${dynamics}. Constraint: Your response must be strictly 2-3 sentences max. Keep it punchy, rhythmic, and engaging.`
     };
   }
 }

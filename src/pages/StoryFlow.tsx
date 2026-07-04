@@ -4,7 +4,7 @@ import { getStory, type Story, getMessages, type Message, saveMessage, getCharac
 import { generateText, generateImage } from '../lib/gemini';
 import { exportCleanStory } from '../lib/exportEngine';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Image as ImageIcon, Pause, Play, Download, Send, ArrowLeft } from 'lucide-react';
+import { Copy, Image as ImageIcon, Pause, Play, Download, Send, ArrowLeft, User } from 'lucide-react';
 
 export default function StoryFlow() {
   const { storyId } = useParams();
@@ -248,8 +248,8 @@ export default function StoryFlow() {
                     </div>
                   )}
                   {isUser && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: '0.5rem', fontWeight: 600 }}>
-                      DIRECTOR INJECTION
+                    <div style={{ fontSize: '0.8rem', color: 'var(--secondary)', marginBottom: '0.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <User size={12} /> DIRECTOR INJECTION
                     </div>
                   )}
                   
