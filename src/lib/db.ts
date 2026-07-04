@@ -30,6 +30,7 @@ export interface Message {
   characterId: string; // The POV character, or 'user' for injected, or 'system'
   content: string;
   timestamp: number;
+  imageUrl?: string;
 }
 
 interface DirectorDB extends DBSchema {

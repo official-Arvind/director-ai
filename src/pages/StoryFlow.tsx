@@ -26,9 +26,7 @@ export default function StoryFlow() {
     if (storyId) loadStory(storyId);
   }, [storyId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+
 
   useEffect(() => {
     if (!isPaused && !isGenerating && story) {
@@ -149,14 +147,24 @@ export default function StoryFlow() {
   };
 
   const handleGenerateImage = async (msgIndex: number) => {
+    const msg = messages[msgIndex];
+    if (msg.imageUrl) return; // already has an image
+
     // Extract context up to this message
     const ctx = messages.slice(0, msgIndex + 1).map(m => m.content).join(' ');
     // Use gemini to distill it into a short image prompt
     try {
       const promptToImage = await generateText("Distill this scene into a highly visual, single-sentence image generation prompt for an AI art generator. Focus on lighting, mood, characters, and environment. No dialogue. Scene: " + ctx);
       const imgUrl = await generateImage(promptToImage);
-      // Open in new tab for gallery view
-      window.open(imgUrl, '_blank');
+      
+      const updatedMsg = { ...msg, imageUrl: imgUrl };
+      await saveMessage(updatedMsg);
+      
+      setMessages(prev => {
+        const newArr = [...prev];
+        newArr[msgIndex] = updatedMsg;
+        return newArr;
+      });
     } catch (e) {
       alert("Failed to generate image.");
       console.error(e);
@@ -263,14 +271,22 @@ export default function StoryFlow() {
                   
                   <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
                   
+                  {m.imageUrl && (
+                    <div style={{ marginTop: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
+                      <img src={m.imageUrl} alt="Scene Visualization" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    </div>
+                  )}
+                  
                   {!isSystem && (
                     <div className="flex gap-2" style={{ marginTop: '0.8rem', justifyContent: 'flex-end' }}>
                       <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleCopy(m.content)}>
                         <Copy size={12} />
                       </button>
-                      <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleGenerateImage(idx)}>
-                        <ImageIcon size={12} />
-                      </button>
+                      {!m.imageUrl && (
+                        <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleGenerateImage(idx)}>
+                          <ImageIcon size={12} />
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
