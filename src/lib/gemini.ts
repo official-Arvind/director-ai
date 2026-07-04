@@ -25,7 +25,7 @@ const SAFETY_SETTINGS = [
   { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
 ];
 
-export async function generateText(prompt: string, model: string = 'gemini-1.5-flash', systemInstruction?: string): Promise<string> {
+export async function generateText(prompt: string, model: string = 'gemini-3.1-flash-lite', systemInstruction?: string): Promise<string> {
   const profile = await getProfile();
   const maxRetries = profile?.apiKeys ? Math.max(profile.apiKeys.length, 1) : 1;
   
@@ -79,7 +79,7 @@ export async function generateText(prompt: string, model: string = 'gemini-1.5-f
 }
 
 // For a structured chat sequence
-export async function generateChat(messages: {role: 'user'|'model', text: string}[], model: string = 'gemini-1.5-flash', systemInstruction?: string): Promise<string> {
+export async function generateChat(messages: {role: 'user'|'model', text: string}[], model: string = 'gemini-3.1-flash-lite', systemInstruction?: string): Promise<string> {
   const apiKey = await getActiveApiKey();
   const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
@@ -172,5 +172,5 @@ Output ONLY raw JSON. No markdown backticks, no explanations.`;
 
 export async function polishCharacterNotes(rawNotes: string): Promise<string> {
   const instruction = `Rewrite the following raw character notes into a beautifully detailed, richly textured character profile. Keep it concise but deeply atmospheric.`;
-  return generateText(rawNotes, 'gemini-1.5-flash', instruction);
+  return generateText(rawNotes, 'gemini-3.1-flash-lite', instruction);
 }
