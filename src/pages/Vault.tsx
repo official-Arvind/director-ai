@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { type Character, getCharacters, saveCharacter, deleteCharacter } from '../lib/db';
-import { polishCharacterNotes } from '../lib/gemini';
-import { Plus, Trash2, Wand2 } from 'lucide-react';
+import { polishCharacterNotes, generateImage } from '../lib/gemini';
+import { Plus, Trash2, Wand2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VaultPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [editingChar, setEditingChar] = useState<Partial<Character> | null>(null);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -26,6 +27,7 @@ export default function VaultPage() {
         age: editingChar.age || 30,
         description: editingChar.description || '',
         createdAt: editingChar.createdAt || Date.now(),
+        imageUrl: editingChar.imageUrl,
       };
       await saveCharacter(charToSave);
       setEditingChar(null);
@@ -54,6 +56,24 @@ export default function VaultPage() {
     }
   };
 
+  const handleGenerateAvatar = async () => {
+    if (!editingChar?.name || !editingChar?.description) {
+      alert("Please fill name and description first to generate a profile image.");
+      return;
+    }
+    try {
+      setIsGeneratingImage(true);
+      const prompt = `A highly detailed, cinematic, and professional portrait of a character named ${editingChar.name}, age ${editingChar.age}. Description: ${editingChar.description}. High quality, uncensored art style, dramatic lighting.`;
+      const imgUrl = await generateImage(prompt);
+      setEditingChar({ ...editingChar, imageUrl: imgUrl });
+    } catch (e) {
+      alert("Failed to generate avatar.");
+      console.error(e);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex-col gap-6">
       <div className="flex justify-between items-end">
@@ -78,6 +98,11 @@ export default function VaultPage() {
                 key={char.id} 
                 className="vault-item"
               >
+                {char.imageUrl && (
+                  <div style={{ marginRight: '1rem' }}>
+                    <img src={char.imageUrl} alt={char.name} style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} />
+                  </div>
+                )}
                 <div style={{ flex: 1, paddingRight: '1rem' }}>
                   <h3 style={{ margin: 0 }}>{char.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({char.age})</span></h3>
                   <p style={{ margin: 0, fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>{char.description}</p>
@@ -100,6 +125,13 @@ export default function VaultPage() {
           {editingChar && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-panel" style={{ padding: '2rem', position: 'sticky', top: '2rem' }}>
               <h2>{editingChar.id ? 'Edit Character' : 'New Character'}</h2>
+              
+              {editingChar.imageUrl && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                  <img src={editingChar.imageUrl} alt="Avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+                </div>
+              )}
+
               <div className="flex gap-4 mb-4">
                 <div className="w-full">
                   <label>Name</label>
@@ -116,7 +148,7 @@ export default function VaultPage() {
                 <textarea 
                   className="glass-input" 
                   placeholder="Rough structural description... e.g. He is a retired assassin trying to bake cakes." 
-                  style={{ minHeight: '300px', resize: 'vertical' }}
+                  style={{ minHeight: '200px', resize: 'vertical' }}
                   value={editingChar.description || ''}
                   onChange={e => setEditingChar({...editingChar, description: e.target.value})}
                 />
@@ -128,6 +160,12 @@ export default function VaultPage() {
                 >
                   <Wand2 size={16} /> {isPolishing ? 'Polishing...' : 'AI Polish'}
                 </button>
+              </div>
+
+              <div className="mt-4">
+                 <button className="glass-button w-full" onClick={handleGenerateAvatar} disabled={isGeneratingImage}>
+                   <ImageIcon size={16} /> {isGeneratingImage ? 'Generating High-Quality Image...' : 'AI Generate Profile Image'}
+                 </button>
               </div>
 
               <div className="flex justify-between mt-6">

@@ -12,6 +12,7 @@ export interface Character {
   age: number;
   description: string;
   createdAt: number;
+  imageUrl?: string;
 }
 
 export interface Story {
