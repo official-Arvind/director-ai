@@ -82,7 +82,7 @@ h1 {
 }
 `;async function ah(e,t,n,r){let i=await $m(t.map(e=>e.characterId===`system`?`[SCENE SETTING]: ${e.content}`:e.characterId===`user`?`[DIRECTOR INJECTION]: ${e.content}`:`${n[e.characterId]?.name||`Unknown`}: ${e.content}`).join(`
 
-`),`gemini-3.1-pro-preview`,`You are a master storyteller. Your job is to rewrite the raw conversational timeline into a flawless, cohesive, professional narrative masterpiece.
+`),`gemini-3.5-flash`,`You are a master storyteller. Your job is to rewrite the raw conversational timeline into a flawless, cohesive, professional narrative masterpiece.
 Do NOT use a script format (e.g. "Name: ..."). Instead, weave it into a proper novel-like format with scene descriptions, internal monologues, and dialogue tags.
 Style Blueprint: ${r||`Cinematic, rich, atmospheric, professional prose.`}`),a=`
 <!DOCTYPE html>
