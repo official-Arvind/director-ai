@@ -110,7 +110,8 @@ export async function generateImage(prompt: string): Promise<string> {
     const encodedPrompt = encodeURIComponent(prompt);
     // Add a random seed to avoid caching
     const seed = Math.floor(Math.random() * 1000000);
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1024&height=1024&nologo=true`;
+    // Use maximum quality settings: model=flux, enhance=true, high resolution
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1280&height=1280&nologo=true&model=flux&enhance=true`;
     
     // We can just return the URL and let the browser load it as an image source.
     // To ensure it's loaded and valid, we could fetch it and create an object URL, but returning the URL is faster and works well.
