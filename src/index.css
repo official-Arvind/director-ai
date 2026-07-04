@@ -347,3 +347,63 @@ label {
   line-height: 1.1;
   margin-bottom: 1.5rem;
 }
+
+/* Fullscreen Story Override */
+.fullscreen-story {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 15% 0%, var(--bg-gradient-1), transparent 50%),
+    radial-gradient(circle at 85% 100%, var(--bg-gradient-2), transparent 50%);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem !important;
+  max-width: 100% !important;
+}
+
+/* Falling Leaves */
+.leaves-container {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.leaf {
+  position: absolute;
+  top: -10%;
+  width: 15px;
+  height: 15px;
+  background: var(--primary);
+  opacity: 0.3;
+  border-radius: 0 50% 50% 50%;
+  animation: fall linear infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px var(--primary-glow));
+}
+
+.leaf:nth-child(1) { left: 10%; animation-duration: 15s; animation-delay: 0s; }
+.leaf:nth-child(2) { left: 20%; animation-duration: 22s; animation-delay: 2s; }
+.leaf:nth-child(3) { left: 80%; animation-duration: 18s; animation-delay: 4s; }
+.leaf:nth-child(4) { left: 90%; animation-duration: 25s; animation-delay: 1s; }
+.leaf:nth-child(5) { left: 5%; animation-duration: 20s; animation-delay: 7s; }
+.leaf:nth-child(6) { left: 95%; animation-duration: 19s; animation-delay: 3s; }
+
+@keyframes fall {
+  0% {
+    top: -10%;
+    transform: translateX(0) rotate(-45deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.4; }
+  50% { transform: translateX(100px) rotate(45deg); }
+  90% { opacity: 0.4; }
+  100% {
+    top: 110%;
+    transform: translateX(-100px) rotate(135deg);
+    opacity: 0;
+  }
+}

@@ -67,8 +67,8 @@ export async function exportCleanStory(
 Do NOT use a script format (e.g. "Name: ..."). Instead, weave it into a proper novel-like format with scene descriptions, internal monologues, and dialogue tags.
 Style Blueprint: ${styleBlueprint || 'Cinematic, rich, atmospheric, professional prose.'}`;
 
-  // Use gemini-3.1-pro-preview as requested
-  const rewrittenNarrative = await generateText(rawTimeline, 'gemini-3.1-pro-preview', systemInstruction);
+  // Use gemini-3.5-flash to avoid Free Tier Rate Limits on Pro models
+  const rewrittenNarrative = await generateText(rawTimeline, 'gemini-3.5-flash', systemInstruction);
 
   const htmlContent = `
 <!DOCTYPE html>

@@ -4,7 +4,7 @@ import { getStory, type Story, getMessages, type Message, saveMessage, getCharac
 import { generateText, generateImage } from '../lib/gemini';
 import { exportCleanStory } from '../lib/exportEngine';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Image as ImageIcon, Pause, Play, Download, Send, ArrowLeft, User } from 'lucide-react';
+import { Copy, Image as ImageIcon, Pause, Play, Download, Send, ArrowLeft, User, Maximize, Minimize } from 'lucide-react';
 
 export default function StoryFlow() {
   const { storyId } = useParams();
@@ -15,6 +15,7 @@ export default function StoryFlow() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
   const [userInput, setUserInput] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const [exportStyle, setExportStyle] = useState('');
   const [isExporting, setIsExporting] = useState(false);
@@ -148,7 +149,6 @@ export default function StoryFlow() {
 
   const handleGenerateImage = async (msgIndex: number) => {
     const msg = messages[msgIndex];
-    if (msg.imageUrl) return; // already has an image
 
     // Extract context up to this message
     const ctx = messages.slice(0, msgIndex + 1).map(m => m.content).join(' ');
@@ -194,12 +194,23 @@ export default function StoryFlow() {
   if (!story) return <div className="container text-center mt-4">Loading Scene...</div>;
 
   return (
-    <div className="container flex-col" style={{ height: '100vh', padding: '1rem', maxWidth: '900px' }}>
+    <div className={`container flex-col ${isFullscreen ? 'fullscreen-story' : ''}`} style={isFullscreen ? {} : { height: '100vh', padding: '1rem', maxWidth: '900px' }}>
       
-      <header className="glass-panel flex justify-between items-center" style={{ padding: '1rem 2rem', marginBottom: '1rem' }}>
+      {isFullscreen && (
+        <div className="leaves-container">
+          <div className="leaf"></div>
+          <div className="leaf"></div>
+          <div className="leaf"></div>
+          <div className="leaf"></div>
+          <div className="leaf"></div>
+          <div className="leaf"></div>
+        </div>
+      )}
+
+      <header className="glass-panel flex justify-between items-center" style={{ padding: '1rem 2rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
         <div className="flex items-center gap-4">
-          <button className="glass-button" style={{ padding: '8px' }} onClick={() => navigate('/')}>
-            <ArrowLeft size={16} />
+          <button className="glass-button" style={{ padding: '8px' }} onClick={() => isFullscreen ? setIsFullscreen(false) : navigate('/')}>
+            {isFullscreen ? <Minimize size={16} /> : <ArrowLeft size={16} />}
           </button>
           <div>
             <h3 style={{ margin: 0 }}>{story.name}</h3>
@@ -209,6 +220,11 @@ export default function StoryFlow() {
           </div>
         </div>
         <div className="flex gap-2">
+          {!isFullscreen && (
+            <button className="glass-button" onClick={() => setIsFullscreen(true)}>
+              <Maximize size={16}/> Fullscreen
+            </button>
+          )}
           <button className={`glass-button ${isPaused ? 'primary' : ''}`} onClick={() => setIsPaused(!isPaused)}>
             {isPaused ? <><Play size={16}/> Resume</> : <><Pause size={16}/> Pause</>}
           </button>
@@ -218,7 +234,7 @@ export default function StoryFlow() {
         </div>
       </header>
 
-      <div className="glass-panel flex-col" style={{ flex: 1, overflowY: 'auto', padding: '2rem', gap: '1.5rem', marginBottom: '1rem' }}>
+      <div className="glass-panel flex-col" style={{ flex: 1, overflowY: 'auto', padding: '2rem', gap: '1.5rem', marginBottom: '1rem', position: 'relative', zIndex: 10 }}>
         <AnimatePresence>
           {messages.map((m, idx) => {
             const isSystem = m.characterId === 'system';
@@ -272,8 +288,8 @@ export default function StoryFlow() {
                   <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
                   
                   {m.imageUrl && (
-                    <div style={{ marginTop: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
-                      <img src={m.imageUrl} alt="Scene Visualization" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    <div style={{ marginTop: '1rem', borderRadius: '8px', overflow: 'hidden', maxWidth: '400px', marginInline: 'auto' }}>
+                      <img src={m.imageUrl} alt="Scene Visualization" style={{ width: '100%', height: 'auto', display: 'block', border: '1px solid var(--glass-border)' }} />
                     </div>
                   )}
                   
@@ -282,11 +298,9 @@ export default function StoryFlow() {
                       <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleCopy(m.content)}>
                         <Copy size={12} />
                       </button>
-                      {!m.imageUrl && (
-                        <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleGenerateImage(idx)}>
-                          <ImageIcon size={12} />
-                        </button>
-                      )}
+                      <button className="glass-button" style={{ padding: '4px 8px', fontSize: '0.8rem', border: 'none' }} onClick={() => handleGenerateImage(idx)}>
+                        <ImageIcon size={12} />
+                      </button>
                     </div>
                   )}
                 </div>
