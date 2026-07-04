@@ -65,7 +65,7 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <header className="flex justify-between items-center mb-4 mt-4">
+      <header className="flex justify-between items-center dashboard-header">
         <div>
           <h1>Director.ai</h1>
           <p>By Jigar Corporation Pvt Ltd</p>
@@ -139,14 +139,14 @@ export default function Dashboard() {
           
           <div className="flex-col gap-4">
             {characters.map(char => (
-              <motion.div layout key={char.id} className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h3 style={{ margin: 0 }}>{char.name}, {char.age}</h3>
-                  <p style={{ margin: 0, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>{char.description}</p>
+              <motion.div layout key={char.id} className="vault-item mb-4">
+                <div style={{ flex: 1, paddingRight: '1rem' }}>
+                  <h3 style={{ margin: 0 }}>{char.name} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>({char.age})</span></h3>
+                  <p style={{ margin: 0, fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '350px' }}>{char.description}</p>
                 </div>
                 <div className="flex gap-2">
                   <button className="glass-button" onClick={() => setEditingChar(char)}>Edit</button>
-                  <button className="glass-button danger" onClick={() => handleDeleteCharacter(char.id)}><Trash2 size={16}/></button>
+                  <button className="glass-button danger" style={{ padding: '12px' }} onClick={() => handleDeleteCharacter(char.id)}><Trash2 size={16}/></button>
                 </div>
               </motion.div>
             ))}
@@ -159,11 +159,18 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-panel" style={{ padding: '2rem' }}>
               <h2>{editingChar.id ? 'Edit Character' : 'New Character'}</h2>
               <div className="flex gap-4 mb-4">
-                <input className="glass-input" placeholder="Name" value={editingChar.name || ''} onChange={e => setEditingChar({...editingChar, name: e.target.value})} />
-                <input className="glass-input" type="number" placeholder="Age" style={{ width: '100px' }} value={editingChar.age || ''} onChange={e => setEditingChar({...editingChar, age: parseInt(e.target.value)})} />
+                <div>
+                  <label>Name</label>
+                  <input className="glass-input" placeholder="e.g. Arthur Shelby" value={editingChar.name || ''} onChange={e => setEditingChar({...editingChar, name: e.target.value})} />
+                </div>
+                <div>
+                  <label>Age</label>
+                  <input className="glass-input" type="number" placeholder="Age" style={{ width: '100px' }} value={editingChar.age || ''} onChange={e => setEditingChar({...editingChar, age: parseInt(e.target.value)})} />
+                </div>
               </div>
               
               <div style={{ position: 'relative' }}>
+                <label>Structural Description</label>
                 <textarea 
                   className="glass-input" 
                   placeholder="Rough structural description..." 

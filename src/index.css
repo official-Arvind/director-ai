@@ -1,159 +1,192 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --bg-color: #0b0c10;
-  --panel-bg: rgba(25, 27, 33, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --bg-dark: #050507;
+  --bg-gradient-1: #1a1025;
+  --bg-gradient-2: #0a1128;
   
-  --primary: #c5a880; /* Warm cinematic tone */
-  --primary-hover: #d8ba8e;
-  --secondary: #45a29e;
+  --primary: #e6b981; /* Cinematic gold */
+  --primary-glow: rgba(230, 185, 129, 0.4);
+  --secondary: #63b3ed; /* Electric blue */
+  --secondary-glow: rgba(99, 179, 237, 0.4);
   
-  --text-main: #e2e2e2;
-  --text-muted: #888c94;
+  --panel-bg: rgba(15, 15, 20, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
   
-  --danger: #ff5e5e;
+  --text-main: #f8f9fa;
+  --text-muted: #a0aec0;
   
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  
-  --glow: 0 0 15px rgba(197, 168, 128, 0.3);
-  
-  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --danger: #fc8181;
 }
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-color);
+  margin: 0;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 15% 0%, var(--bg-gradient-1), transparent 50%),
+    radial-gradient(circle at 85% 100%, var(--bg-gradient-2), transparent 50%);
+  background-attachment: fixed;
   color: var(--text-main);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism utility classes */
+/* Animated noise overlay for cinematic texture */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+h1, h2, h3, h4 {
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+h1 {
+  font-size: 3.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 12px var(--primary-glow));
+}
+
+h2 {
+  font-size: 2.2rem;
+  color: #fff;
+}
+
+h3 {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Glass Panels */
 .glass-panel {
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
+  border-top: 1px solid var(--glass-highlight);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.02);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+.glass-panel:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Inputs */
 .glass-input {
-  background: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--glass-border);
   color: var(--text-main);
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 16px 20px;
+  border-radius: 12px;
   font-family: inherit;
-  font-size: 1rem;
-  width: 100%;
-  transition: var(--transition);
+  font-size: 1.05rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .glass-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: var(--glow);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px var(--primary-glow);
 }
 
+/* Buttons */
 .glass-button {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--glass-border);
   color: var(--text-main);
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
   cursor: pointer;
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  backdrop-filter: blur(10px);
 }
 
 .glass-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--glass-highlight);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5);
+}
+
+.glass-button:active {
+  transform: translateY(1px);
 }
 
 .glass-button.primary {
-  background: rgba(197, 168, 128, 0.1);
-  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(230, 185, 129, 0.15), rgba(230, 185, 129, 0.05));
+  border-color: rgba(230, 185, 129, 0.5);
   color: var(--primary);
+  text-shadow: 0 0 10px var(--primary-glow);
 }
 
-.glass-button.primary:hover {
-  background: var(--primary);
-  color: var(--bg-color);
-  box-shadow: var(--glow);
+.glass-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--primary), #d4a36a);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--primary-glow), 0 10px 20px -5px rgba(230, 185, 129, 0.3);
+  border-color: transparent;
+}
+
+.glass-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .glass-button.danger {
   color: var(--danger);
-  border-color: rgba(255, 94, 94, 0.3);
+  border-color: rgba(252, 129, 129, 0.3);
 }
 
 .glass-button.danger:hover {
-  background: rgba(255, 94, 94, 0.1);
+  background: rgba(252, 129, 129, 0.15);
   border-color: var(--danger);
+  box-shadow: 0 0 15px rgba(252, 129, 129, 0.2);
 }
 
-/* Layout */
+/* Utilities & Layout */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  line-height: 1.2;
-  margin-bottom: 1rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  letter-spacing: -0.02em;
-}
-
-p {
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-color);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Utilities */
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
 .items-center { align-items: center; }
@@ -164,6 +197,68 @@ p {
 .gap-6 { gap: 1.5rem; }
 .mt-4 { margin-top: 1rem; }
 .mb-4 { margin-bottom: 1rem; }
-.text-center { text-align: center; }
 .w-full { width: 100%; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.text-center { text-align: center; }
+
+.grid-2 { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); 
+  gap: 2.5rem; 
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Specific tweaks */
+.dashboard-header {
+  margin-bottom: 4rem;
+}
+
+.dashboard-header p {
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vault-item {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.vault-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--glass-highlight);
+  transform: translateX(5px);
+}
