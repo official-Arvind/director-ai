@@ -1,24 +1,68 @@
-# Support Jigar Corporation Pvt Ltd ⚡
+<div align="center">
 
-Let's cut the corporate filler. 
+<a href="https://official-Arvind.github.io/director-ai/">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0b0c10,50:c5a880,100:191b21&height=220&section=header&text=Support%20Jigar%20Corp&fontSize=72&fontColor=ffffff&fontAlignY=38&desc=Fuel%20the%20Fire&descAlignY=58&descSize=22&animation=fadeIn" width="100%"/>
+</a>
 
-We build raw, unfiltered, elite-tier software because we are obsessed with the craft. **Director.ai** is given to the community for free, running purely in your browser without tracking, without subscriptions, and without compromise. 
+<br/>
+
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Outfit&weight=700&size=22&duration=3000&pause=800&color=C5A880&center=true&vCenter=true&multiline=false&width=700&lines=No+Subscriptions.+No+Paywalls.+%E2%9A%A1;Pure+Appreciation.+%F0%9F%8E%AD;Keep+Open-Source+Alive.+%F0%9F%8C%B2)](https://official-Arvind.github.io/director-ai/)
+
+<br/>
+<br/>
+
+> **Let's cut the corporate filler.** 
+> We build raw, unfiltered, elite-tier software because we are obsessed with the craft. 
+
+</div>
+
+---
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=11,12,16&height=4&section=header" width="100%"/>
+</div>
+
+## ⚡ Fuel the Fire
+
+**Director.ai** is given to the community for free, running purely in your browser without tracking, without subscriptions, and without compromise. 
 
 If this tool sparked your creativity, helped you bypass the sterile AI filters, or gave you an unforgettable storytelling experience, consider backing the engineers who put it together.
 
-## How to Fuel the Fire
+<table>
+<tr>
+<td width="33%" align="center" valign="top">
 
-No subscriptions. No paywalls. Just pure appreciation.
+### ₿ Bitcoin
+<img src="https://img.shields.io/badge/BTC-bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Bitcoin"/>
 
-- **Bitcoin**: `bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh`
-- **Ethereum**: `0x71C7656EC7ab88b098defB751B7401B5f6d8976F`
-- **Buy us a Coffee / Server Time**: [JigarCorp.Sponsor.link] (Placeholder link — imagine it goes to a high-vibe tip jar)
+</td>
+<td width="33%" align="center" valign="top">
 
-### Why Donate?
+### ⟠ Ethereum
+<img src="https://img.shields.io/badge/ETH-0x71C7656EC7ab88b098defB751B7401B5f6d8976F-627EEA?style=for-the-badge&logo=ethereum&logoColor=white" alt="Ethereum"/>
+
+</td>
+<td width="33%" align="center" valign="top">
+
+### ☕ Support R&D
+<img src="https://img.shields.io/badge/Support-Buy_us_a_coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Support"/>
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🛡️ Why Donate?
+
 Because open-source is a battleground, and high-fidelity code takes blood, sweat, and electricity. Every tip goes directly to:
 1. Midnight caffeine supplies.
 2. R&D for Director 2.0 (Video generation? Fully autonomous agents? Who knows).
 3. Keeping the spirit of wild, untamed web development alive.
 
-**Stay raw. Stay creative.**
-*— The Jigar Corp Team*
+<br/>
+
+<div align="center">
+  <b>Stay raw. Stay creative.</b><br/>
+  <i>— The Jigar Corp Team</i>
+</div>
