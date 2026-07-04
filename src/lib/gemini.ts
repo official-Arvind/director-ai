@@ -129,10 +129,7 @@ export async function generateImage(prompt: string): Promise<string> {
     // We add some master quality tags to the prompt to force better lighting/anatomy.
     const qualityPrompt = prompt + ", best quality, 8k, masterpiece, highly detailed, photorealistic, cinematic lighting, ultra-detailed";
     const encodedPrompt = encodeURIComponent(qualityPrompt);
-    const profile = await getProfile();
-    const keyParam = profile?.pollinationsKey ? `&private=true&key=${profile.pollinationsKey}` : '';
-
-    const pollinationsUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?seed=${seed}&width=1024&height=1024&nologo=true&model=nanobanana-2&safe=false${keyParam}`;
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1024&height=1024&nologo=true&model=nanobanana-2&safe=false`;
     
     // We can just return the URL and let the browser load it as an image source.
     // To ensure it's loaded and valid, we could fetch it and create an object URL, but returning the URL is faster and works well.
